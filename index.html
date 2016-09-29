@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>Document</title>
+	<link rel="stylesheet" href="">
+	<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+		rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+		crossorigin="anonymous">
+</head>
+<body>
+    <script src="./node_modules/pouchdb/dist/pouchdb.js"></script>
+		<script src="./node_modules/pouchdb-upsert/dist/pouchdb.upsert.js"></script>
+	<h1>Anas</h1>
+	<p>I'm going to try to use leveldb with electron</p>
+
+	<form class="form-horizontal" method="get">
+<fieldset>
+
+<!-- Form Name -->
+<legend>Smartphones Stock</legend>
+
+<!-- Text input-->
+<div class="form-group">
+  <label class="col-md-4 control-label" for="mobileBrand">Brand</label>
+  <div class="col-md-4">
+  <input id="mobileBrand" name="mobileBrand" type="text" placeholder="Mobile Brand" class="form-control input-md" required="">
+  <span class="help-block">enter mobile brand</span>
+  </div>
+</div>
+
+<!-- Text input-->
+<div class="form-group">
+  <label class="col-md-4 control-label" for="mobileModel">Model</label>
+  <div class="col-md-4">
+  <input id="mobileModel" name="mobileModel" type="text" placeholder="Mobile Model" class="form-control input-md" required="">
+  <span class="help-block">enter mobile model</span>
+  </div>
+</div>
+
+<!-- Text input-->
+<div class="form-group">
+  <label class="col-md-4 control-label" for="mobileColor">Color</label>
+  <div class="col-md-4">
+  <input id="mobileColor" name="mobileColor" type="text" placeholder="Mobile Color" class="form-control input-md" required="">
+  <span class="help-block">enter mobile color</span>
+  </div>
+</div>
+
+<!-- Text input-->
+<div class="form-group">
+  <label class="col-md-4 control-label" for="mobileStorage">Storage</label>
+  <div class="col-md-4">
+  <input id="mobileStorage" name="mobileStorage" type="text" placeholder="Mobile Storage" class="form-control input-md" required="">
+  <span class="help-block">enter mobile storage</span>
+  </div>
+</div>
+
+<!-- Button -->
+<div class="form-group">
+  <label class="col-md-4 control-label" for="submit"></label>
+  <div class="col-md-4">
+    <button id="submit" type="submit" name="submit" class="btn btn-inverse">submit</button>
+  </div>
+</div>
+
+</fieldset>
+</form>
+
+	<div id="smartphone"></div>
+	<div id="usb"></div>
+
+	<script type="text/javascript">
+		var db = new PouchDB('experiment-db');
+	</script>
+	<script>require('./experiment.js')</script>
+</body>
+</html>
