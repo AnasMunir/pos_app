@@ -7,9 +7,9 @@ var $ = document.querySelector.bind(document);
 //db.plugin(require('pouchdb-upsert');
 
 var type = 'usb';
-var brand = 'samsung';
-var model = '3x101';
-var color = 'black';
+var brand = 'kingston';
+var model = '3.0';
+var color = '';
 var storage = '32gb';
 
 
@@ -31,7 +31,11 @@ db.putIfNotExists({
   $('#smartphone').innerHTML = JSON.stringify(doc.color);
   console.log(doc);
 }).then(function () {
-  return db.allDocs({include_once: true});
+  return db.allDocs({include_docs: true});
+}).then(function (result) {
+  console.log(result);
+}).then(function () {
+  return db.allDocs({startkey: 'usb' +'_'+ 'kingston' +'_'+ model +'_'+ color +'_'+ storage});
 }).then(function (result) {
   console.log(result);
 }).catch(function (err) {
