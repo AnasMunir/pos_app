@@ -8,9 +8,9 @@ var $ = document.querySelector.bind(document);
 
 var type = 'usb';
 var brand = 'kingston';
-var model = '3.0';
+var model = 'moto-x';
 var color = '';
-var storage = '32gb';
+var storage = '16gb';
 
 
 db.putIfNotExists({
@@ -28,40 +28,25 @@ db.putIfNotExists({
 }).then(function () {
   return db.get(type +'_'+ brand +'_'+ model +'_'+ color +'_'+ storage);
 }).then(function (doc) {
-  $('#smartphone').innerHTML = JSON.stringify(doc.color);
+  $('#alldoc').innerHTML = JSON.stringify(doc.color);
   console.log(doc);
 }).then(function () {
   return db.allDocs({include_docs: true});
 }).then(function (result) {
   console.log(result);
 }).then(function () {
-  return db.allDocs({startkey: 'usb' +'_'+ 'kingston' +'_'+ model +'_'+ color +'_'+ storage});
+  return db.allDocs({startkey: 'usb', endkey: 'usb\uffff'});
 }).then(function (result) {
   console.log(result);
 }).catch(function (err) {
   console.log(err);
 });
 
-// db.putIfNotExists({
-//   _id: usbBrand +'_'+ usbModel +'_'+ usbStorage,
-//   brand: usbBrand,
-//   model: usbModel,
-//   storage: usbStorage,
-//   quantity: 0,
-//   pricing: {
-//     list: 0,
-//     retail: 0
-//   }
-// }).then(function () {
-//   return db.get(usbBrand +'_'+ usbModel +'_'+ usbStorage);
-// }).then(function (doc) {
-//   $('#usb').innerHTML = JSON.stringify(doc.quantity);
-//   console.log(doc);
-// }).catch(function (err) {
-//   console.log(err);
-// });
+var name = type +'_'+ brand +'_'+ model +'_'+ color +'_'+ storage;
 
-PouchDB.replicate('experiment-db', 'http://localhost:5984/experiment-db', {live: true});
+db.viewCleanup();
+
+PouchDB.replicate('experiment4-db', 'http://localhost:5984/experiment4-db', {live: true});
 
 var button = document.createElement('button')
 button.textContent = 'Open window'
