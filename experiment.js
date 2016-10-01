@@ -58,17 +58,27 @@ new PouchDB('experiment5-db').destroy().then(function () {
   var ddoc = {
     _id: '_design/' + name,
     views: {
-      by_type: {
+      by_storage: {
         map: function (doc) {
           emit(doc.storage);
+        }.toString()
+      },
+      by_type: {
+        map: function (doc) {
+          emit(doc.type)
         }.toString()
       }
     }
   };
   db.put(ddoc).then(function () {
+    return db.query(name + '/by_storage', {stale: 'update_after'});
     return db.query(name + '/by_type', {stale: 'update_after'});
   }).then(function () {
-    return db.query(name + '/by_type', {key: '16gb'});
+    return db.query(name + '/by_storage', {key: '16gb'});
+  }).then(function (result) {
+    console.log(result);
+  }).then(function () {
+    return db.query(name + '/by_type', {key: 'usb'});
   }).then(function (result) {
     console.log(result);
   }).catch(function (err) {
