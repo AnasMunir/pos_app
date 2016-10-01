@@ -11,10 +11,10 @@ var brand = 'sandisk';
 var model = '3.0';
 var color = '';
 var storage = '16gb';
-
-new PouchDB('experiment5-db').destroy().then(function () {
-  return new PouchDB('experiment5-db');
-}).then(function (db) {
+//
+// new PouchDB('experiment5-db').destroy().then(function () {
+//   return new PouchDB('experiment5-db');
+// }).then(function (db) {
 
   db.putIfNotExists({
     _id: type +'_'+ brand +'_'+ model +'_'+ color +'_'+ storage,
@@ -45,13 +45,6 @@ new PouchDB('experiment5-db').destroy().then(function () {
     console.log(err);
   });
 
-  db.query(function (doc, emit) {
-    emit(doc.storage);
-  }, {key: '32gb'}).then(function (result) {
-    console.log(result);
-  }).catch(function (err) {
-    console.log(err);
-  });
 
   var name = type +'_'+ brand +'_'+ model +'_'+ color +'_'+ storage;
   // // making design doc for above doc
@@ -70,7 +63,7 @@ new PouchDB('experiment5-db').destroy().then(function () {
       }
     }
   };
-  db.put(ddoc).then(function () {
+  db.putIfNotExists(ddoc).then(function () {
     return db.query(name + '/by_storage', {stale: 'update_after'});
     return db.query(name + '/by_type', {stale: 'update_after'});
   }).then(function () {
@@ -85,7 +78,7 @@ new PouchDB('experiment5-db').destroy().then(function () {
     console.log(err);
   });
 
-});
+// });
 
 
 
@@ -99,3 +92,11 @@ button.addEventListener('click', () => {
 	main.openWindow()
 }, false)
 document.body.appendChild(button)
+
+// db.query(function (doc, emit) {
+//   emit(doc.storage);
+// }, {key: '32gb'}).then(function (result) {
+//   console.log(result);
+// }).catch(function (err) {
+//   console.log(err);
+// });
