@@ -15,45 +15,63 @@
 	<h1>Anas</h1>
 	<p>I'm going to try to use leveldb with electron</p>
 
-	<form class="form-horizontal" method="get">
-<fieldset>
+	<!-- <form class="form-horizontal" method="get", onsubmit="formInput()">
+<fieldset> -->
 
 <!-- Form Name -->
 <legend>Smartphones Stock</legend>
 
 <!-- Text input-->
 <div class="form-group">
-  <label class="col-md-4 control-label" for="mobileBrand">Brand</label>
+  <label class="col-md-4 control-label" for="Barcode">Barcode</label>
   <div class="col-md-4">
-  <input id="mobileBrand" name="mobileBrand" type="text" placeholder="Mobile Brand" class="form-control input-md" required="">
-  <span class="help-block">enter mobile brand</span>
+  <input id="barcode" name="Barcode" type="text" placeholder="Product barcode" class="form-control input-md" required="">
+  <span class="help-block">enter product barcode</span>
   </div>
 </div>
 
 <!-- Text input-->
 <div class="form-group">
-  <label class="col-md-4 control-label" for="mobileModel">Model</label>
+  <label class="col-md-4 control-label" for="Type">Type</label>
   <div class="col-md-4">
-  <input id="mobileModel" name="mobileModel" type="text" placeholder="Mobile Model" class="form-control input-md" required="">
-  <span class="help-block">enter mobile model</span>
+  <input id="type" name="Type" type="text" placeholder="Product type" class="form-control input-md" required="">
+  <span class="help-block">enter product type</span>
   </div>
 </div>
 
 <!-- Text input-->
 <div class="form-group">
-  <label class="col-md-4 control-label" for="mobileColor">Color</label>
+  <label class="col-md-4 control-label" for="Brand">Brand</label>
   <div class="col-md-4">
-  <input id="mobileColor" name="mobileColor" type="text" placeholder="Mobile Color" class="form-control input-md" required="">
-  <span class="help-block">enter mobile color</span>
+  <input id="brand" name="Brand" type="text" placeholder="Product brand" class="form-control input-md" required="">
+  <span class="help-block">enter product brand</span>
   </div>
 </div>
 
 <!-- Text input-->
 <div class="form-group">
-  <label class="col-md-4 control-label" for="mobileStorage">Storage</label>
+  <label class="col-md-4 control-label" for="Model">Model</label>
   <div class="col-md-4">
-  <input id="mobileStorage" name="mobileStorage" type="text" placeholder="Mobile Storage" class="form-control input-md" required="">
-  <span class="help-block">enter mobile storage</span>
+  <input id="model" name="Model" type="text" placeholder="Product model" class="form-control input-md" required="">
+  <span class="help-block">enter product model</span>
+  </div>
+</div>
+
+<!-- Text input-->
+<div class="form-group">
+  <label class="col-md-4 control-label" for="Color">Color</label>
+  <div class="col-md-4">
+  <input id="color" name="Color" type="text" placeholder="Product color" class="form-control input-md" required="">
+  <span class="help-block">enter product color</span>
+  </div>
+</div>
+
+<!-- Text input-->
+<div class="form-group">
+  <label class="col-md-4 control-label" for="Storage">Storage</label>
+  <div class="col-md-4">
+  <input id="storage" name="Storage" type="text" placeholder="Product storage" class="form-control input-md" required="">
+  <span class="help-block">enter product storage</span>
   </div>
 </div>
 
@@ -61,19 +79,22 @@
 <div class="form-group">
   <label class="col-md-4 control-label" for="submit"></label>
   <div class="col-md-4">
-    <button id="submit" type="submit" name="submit" class="btn btn-inverse">submit</button>
+    <button id="getval" type="submit" name="submit" class="btn btn-inverse">submit</button>
   </div>
 </div>
 
-</fieldset>
-</form>
+<!-- </fieldset>
+</form> -->
 
 	<div id="alldoc"></div>
 	<div id="usb"></div>
 
-	<script type="text/javascript">
+	<!-- <script type="text/javascript">
 		var db = new PouchDB('experiment4-db');
-	</script>
-	<script>require('./experiment.js')</script>
+	</script> -->
+	<!-- <script>require('./js/experiment.js')</script> -->
+	<script>window.$ = window.jQuery = require('jquery');</script>
+	<!-- <script src="./js/jquery-3.1.1.min.js"></script> -->
+	<script src="./js/experiment.js"></script>
 </body>
 </html>
