@@ -23,6 +23,9 @@ $('#searchProduct').keyup(function () {
   return db.allDocs({startkey: searchkey, endkey: searchkey+'\uffff', include_docs: true}).then(function (result) {
     // var obj = jQuery.parseJSON(result);
     // alert(obj.bar_code);
+    var output = document.getElementById('search_resutls')
+    output.innerHTML = result;
+
     console.log(result);
   }).catch(function (err) {
     console.log(err);
@@ -39,6 +42,8 @@ $('#searchBar').click(function productSearchBarcode(doc) {
     highlighting: true,
     include_docs: true
   }).then(function (result) {
+    var output = document.getElementById('search_resutls')
+    output.innerHTML = JSON.stringify(result.rows[0].doc.product_name)
     console.log(result);
   }).catch(function (err) {
     console.log(err);
