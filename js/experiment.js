@@ -18,13 +18,26 @@ $('#search').click(function productSearch() {
   })
 });
 
-$('#searchName').click(function productSearchName() {
-  var name = '961014105452_liption yellow label 50g'
+$('#searchName').click(function productSearchName(doc) {
+  // var name = '254501410169_cookies 50g'
   var searchkey = $('#searchProduct').val();
-  return db.query(name + '/by_name', {startkey: searchkey, endkey: searchkey+'\uffff', include_docs: true}).then(function (result) {
+  return db.search({
+    query: searchkey,
+    fields: ['product_name'],
+    highlighting: true,
+    include_docs: true
+  }).then(function (result) {
     console.log(result);
-  })
+  }).catch(function (err) {
+    console.log(err);
+  });
 });
+//   return db.query(doc + '/by_name', {startkey: searchkey, endkey: searchkey+'\uffff', include_docs: true}).then(function (result) {
+//     console.log(result);
+//   }).catch(function (err) {
+//     console.log(err);
+//   })
+// });
 
 function productInsertion(barcode, name) {
 
