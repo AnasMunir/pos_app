@@ -1,50 +1,65 @@
 const remote = require('electron').remote
 const main = remote.require('./main.js')
 
-var db = new PouchDB('experiment6-db');
+var db = new PouchDB('experiment7-db');
 PouchDB.plugin(require('pouchdb-upsert'));
 
 $('#getval').click(function () {
   var barcode = $('#barcode').val();
   var name = $('#name').val();
 
-  productInsertion(barcode, name);
+  productInsertion(name, barcode);
 });
 
-$('#search').click(function productSearch() {
+// $('#searchName').click(function productSearch() {
+//   var searchkey = $('#searchProduct').val();
+//   return db.allDocs({startkey: searchkey, endkey: searchkey+'\uffff', include_docs: true}).then(function (result) {
+//     console.log(result);
+//   })
+// });
+$('#searchProduct').keyup(function () {
+  // alert("JZ is a foo!");
   var searchkey = $('#searchProduct').val();
   return db.allDocs({startkey: searchkey, endkey: searchkey+'\uffff', include_docs: true}).then(function (result) {
+    // var obj = jQuery.parseJSON(result);
+    // alert(obj.bar_code);
     console.log(result);
+  }).catch(function (err) {
+    console.log(err);
   })
 });
 
-$('#searchName').click(function productSearchName(doc) {
-  // var name = '254501410169_cookies 50g'
+$('#searchBar').click(function productSearchBarcode(doc) {
+
   var searchkey = $('#searchProduct').val();
+
   return db.search({
     query: searchkey,
-    fields: ['product_name'],
+    fields: ['bar_code'],
     highlighting: true,
     include_docs: true
   }).then(function (result) {
     console.log(result);
   }).catch(function (err) {
     console.log(err);
-  });
+  })
 });
-//   return db.query(doc + '/by_name', {startkey: searchkey, endkey: searchkey+'\uffff', include_docs: true}).then(function (result) {
+
+//   return db.find({
+//     selector: {barcode: searchkey}
+//   }).then(function (result) {
 //     console.log(result);
 //   }).catch(function (err) {
 //     console.log(err);
-//   })
+//   });
 // });
 
-function productInsertion(barcode, name) {
+function productInsertion(name, barcode) {
 
   db.putIfNotExists({
-    _id: barcode +'_'+ name,
-    barcode: barcode,
+    _id: name +'_'+ barcode,
     product_name: name,
+    bar_code: barcode,
     quantity: 0,
     pricing: {
       list: 0,
@@ -58,23 +73,13 @@ function productInsertion(barcode, name) {
     console.log(err);
   });
 
-  var name = barcode +'_'+ name;
+  var name = name +'_'+ barcode;
   // // making design doc for above doc
-  var ddoc = {
-    _id: '_design/' + name,
-    views: {
-      by_name: {
-        map: function (doc) {
-          emit(doc.product_name);
-        }.toString()
-      },
-      reduce: '_sum'
+  return db.createIndex({
+    index: {
+      fields: ['bar_code'],
+      ddoc: name
     }
-  };
-  db.putIfNotExists(ddoc).then(function () {
-    return db.query(name + '/by_name', {stale: 'update_after'});
-  }).then(function () {
-    return db.query(name + '/by_name', {startkey: 'liption', endkey: 'liption\uffff'});
   }).then(function (result) {
     console.log(result);
   }).catch(function (err) {
@@ -85,7 +90,7 @@ function productInsertion(barcode, name) {
 
 }
 
-PouchDB.replicate('experiment6-db', 'http://localhost:5984/experiment6-db', {live: true});
+PouchDB.replicate('experiment7-db', 'http://localhost:5984/experiment7-db', {live: true});
 
 var button = document.createElement('button')
 button.textContent = 'Open window'

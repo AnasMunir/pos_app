@@ -13,6 +13,7 @@
     <script src="./node_modules/pouchdb/dist/pouchdb.js"></script>
 		<script src="./node_modules/pouchdb-upsert/dist/pouchdb.upsert.js"></script>
 		<script src="./node_modules/pouchdb-quick-search/dist/pouchdb.quick-search.js"></script>
+		<script src="./node_modules/pouchdb-find/dist/pouchdb.find.js"></script>
 	<h1>Anas</h1>
 	<p>I'm going to try to use leveldb with electron</p>
 
@@ -55,15 +56,15 @@
 <div class="form-group">
   <label class="col-md-4 control-label" for="search"></label>
   <div class="col-md-4">
-    <button id="search" type="submit" name="search" class="btn btn-inverse">search</button>
+    <button id="searchName" type="submit" name="search" class="btn btn-inverse">search name</button>
   </div>
 </div>
 
 <!-- search button -->
 <div class="form-group">
-  <label class="col-md-4 control-label" for="searchName"></label>
+  <label class="col-md-4 control-label" for="searchBar"></label>
   <div class="col-md-4">
-    <button id="searchName" type="submit" name="searchName" class="btn btn-inverse">search name</button>
+    <button id="searchBar" type="submit" name="searchBar" class="btn btn-inverse">search barcode</button>
   </div>
 </div>
 
@@ -73,6 +74,17 @@
 		var db = new PouchDB('experiment4-db');
 	</script> -->
 	<script>window.$ = window.jQuery = require('jquery');</script>
+	<!-- <script type="text/javascript">
+		$('#searchName').keyup(function () {
+			$.ajax({
+         type: "GET",
+				 url: "./js/experiment.js/productSearch",
+				 data: { keyword: $('#searchName')},
+				 dataType: "json",
+				 success: alert
+			});
+		});
+	</script> -->
 	<!-- <script src="./js/jquery-3.1.1.min.js"></script> -->
 	<script src="./js/experiment.js"></script>
 </body>
