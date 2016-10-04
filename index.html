@@ -15,10 +15,6 @@
 	<h1>Anas</h1>
 	<p>I'm going to try to use leveldb with electron</p>
 
-	<!-- <form class="form-horizontal" method="get", onsubmit="formInput()">
-<fieldset> -->
-
-<!-- Form Name -->
 <legend>Smartphones Stock</legend>
 
 <!-- Text input-->
@@ -47,16 +43,26 @@
   </div>
 </div>
 
-<!-- </fieldset>
-</form> -->
+<!-- search bar -->
+<div class="form-group">
+  <label class="col-md-4 control-label" for="searchProduct">Search product</label>
+  <div class="col-md-4">
+  <input id="searchProduct" name="searchProduct" type="text" placeholder="Search Product" class="form-control input-md" required="">
+  </div>
+</div>
+<!-- search button -->
+<div class="form-group">
+  <label class="col-md-4 control-label" for="search"></label>
+  <div class="col-md-4">
+    <button id="search" type="submit" name="search" class="btn btn-inverse">search</button>
+  </div>
+</div>
 
-	<div id="alldoc"></div>
-	<div id="usb"></div>
+	<div id="search_resutls"></div>
 
 	<!-- <script type="text/javascript">
 		var db = new PouchDB('experiment4-db');
 	</script> -->
-	<!-- <script>require('./js/experiment.js')</script> -->
 	<script>window.$ = window.jQuery = require('jquery');</script>
 	<!-- <script src="./js/jquery-3.1.1.min.js"></script> -->
 	<script src="./js/experiment.js"></script>

@@ -11,6 +11,12 @@ $('#getval').click(function () {
   productInsertion(barcode, name);
 });
 
+$('#search').click(function productSearch() {
+  var searchkey = $('#searchProduct').val();
+  return db.allDocs({startkey: searchkey, endkey: searchkey+'\uffff', include_docs: true}).then(function (result) {
+    console.log(result);
+  })
+});
 
 function productInsertion(barcode, name) {
 
@@ -25,10 +31,6 @@ function productInsertion(barcode, name) {
     }
   }).then(function () {
     return db.allDocs({include_docs: true});
-  }).then(function (result) {
-    console.log(result);
-  }).then(function () {
-    return db.allDocs({startkey: '961', endkey: '961\uffff', include_docs: true});
   }).then(function (result) {
     console.log(result);
   }).catch(function (err) {
