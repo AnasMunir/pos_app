@@ -18,6 +18,14 @@ $('#search').click(function productSearch() {
   })
 });
 
+$('#searchName').click(function productSearchName() {
+  var name = '961014105452_liption yellow label 50g'
+  var searchkey = $('#searchProduct').val();
+  return db.query(name + '/by_name', {startkey: searchkey, endkey: searchkey+'\uffff', include_docs: true}).then(function (result) {
+    console.log(result);
+  })
+});
+
 function productInsertion(barcode, name) {
 
   db.putIfNotExists({
@@ -53,7 +61,7 @@ function productInsertion(barcode, name) {
   db.putIfNotExists(ddoc).then(function () {
     return db.query(name + '/by_name', {stale: 'update_after'});
   }).then(function () {
-    return db.query(name + '/by_name', {startkey: 'liption', endkey: 'liption\uffff', include_docs: true});
+    return db.query(name + '/by_name', {startkey: 'liption', endkey: 'liption\uffff'});
   }).then(function (result) {
     console.log(result);
   }).catch(function (err) {
