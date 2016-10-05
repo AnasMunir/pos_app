@@ -50,6 +50,18 @@ $('#searchBar').click(function productSearchBarcode(doc) {
   })
 });
 
+$('#showDocs').click(function showDocs() {
+  return db.allDocs({include_docs: true}).then(function (result) {
+    for (var i = 0; i < result.total_rows; i++) {
+      if (result.rows[i].doc.quantity < result.rows[i].doc.threshold_qty) {
+        console.log(result.rows[i].doc.product_name + 'is less than threshold_qty');
+      }
+    }
+    // console.log(result);
+  }).catch(function (err) {
+    console.log(err);
+  })
+})
 //   return db.find({
 //     selector: {barcode: searchkey}
 //   }).then(function (result) {
@@ -65,7 +77,8 @@ function productInsertion(name, barcode) {
     _id: name +'_'+ barcode,
     product_name: name,
     bar_code: barcode,
-    quantity: 0,
+    quantity: 8,
+    threshold_qty: 10,
     pricing: {
       list: 0,
       retail: 0
