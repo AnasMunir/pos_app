@@ -70,6 +70,37 @@ $('#showDocs').click(function showDocs() {
 //     console.log(err);
 //   });
 // });
+var invoice_total = [];
+// function calculate_total(total) {
+//   invoice_total.push(total);
+//   return invoice_total.reduce( (acc, cur) => acc + cur, 0);
+// }
+$('#enter').click(function () {
+  var barcode = $('#invoiceProduct').val();
+  var quantity = $('#quantity').val();
+  var total = 0;
+  return db.search({
+    query: barcode,
+    fields: ['bar_code'],
+    include_docs: true
+  }).then(function (result) {
+    console.log('item: ' + result.rows[0].doc.product_name + ' price: ' + result.rows[0].doc.pricing.retail + ' qty: ' + quantity);
+    total = result.rows[0].doc.pricing.retail * quantity
+    console.log(total);
+    invoice_total.push(total);
+  }).catch(function (err) {
+    console.log(err);
+  });
+});
+
+$('#checkout').click(function () {
+  var cash_paid = parseInt($('#cashPaid').val());
+  var total = invoice_total.reduce( (acc, cur) => acc + cur, 0);
+  console.log('Invoice Total: ' + total);
+  console.log('Cash paid: ' + cash_paid);
+  var balance = cash_paid - total
+  console.log('customer balance ' + balance);
+})
 
 function productInsertion(name, barcode) {
 
@@ -77,11 +108,11 @@ function productInsertion(name, barcode) {
     _id: name +'_'+ barcode,
     product_name: name,
     bar_code: barcode,
-    quantity: 8,
+    quantity: 15,
     threshold_qty: 10,
     pricing: {
-      list: 0,
-      retail: 0
+      list: 130,
+      retail: 180
     }
   }).then(function () {
     return db.allDocs({include_docs: true});

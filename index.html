@@ -72,7 +72,28 @@
 <div class="form-group">
   <label class="col-md-4 control-label" for="showDocs"></label>
   <div class="col-md-4">
-    <button id="showDocs" type="submit" name="showDocs" class="btn btn-inverse">show all docs</button>
+    <button id="showDocs" type="submit" name="showDocs" class="btn btn-inverse">show all docs that are short</button>
+  </div>
+</div>
+<!-- search bar and enter button for invoice -->
+<div class="form-group">
+  <label class="col-md-4 control-label" for="invoiceProduct">enter barcode</label>
+  <div class="col-md-4">
+  <input id="invoiceProduct" name="invoiceProduct" type="text" placeholder="Invoice Product" class="form-control input-md" required="">
+	<input id="quantity" type="number" name="quantity" min="1">
+  </div>
+	<div class="col-md-2">
+    <button id="enter" type="submit" name="enter" class="btn btn-inverse">enter</button>
+  </div>
+</div>
+<!-- for checking output -->
+<div class="form-group">
+  <label class="col-md-4 control-label" for="cashPaid">cash paid</label>
+  <div class="col-md-4">
+  	<input id="cashPaid" name="cashPaid" type="text" placeholder="cash paid" class="form-control input-md" required="">
+  </div>
+	<div class="col-md-2">
+    <button id="checkout" type="submit" name="checkout" class="btn btn-inverse">checkout</button>
   </div>
 </div>
 
