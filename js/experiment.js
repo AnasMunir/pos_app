@@ -10,13 +10,7 @@ $('#getval').click(function () {
 
   productInsertion(name, barcode);
 });
-
-// $('#searchName').click(function productSearch() {
-//   var searchkey = $('#searchProduct').val();
-//   return db.allDocs({startkey: searchkey, endkey: searchkey+'\uffff', include_docs: true}).then(function (result) {
-//     console.log(result);
-//   })
-// });
+// live search
 $('#searchProduct').keyup(function () {
   // alert("JZ is a foo!");
   var searchkey = $('#searchProduct').val();
@@ -31,7 +25,7 @@ $('#searchProduct').keyup(function () {
     console.log(err);
   })
 });
-
+//search item by barcode
 $('#searchBar').click(function productSearchBarcode(doc) {
 
   var searchkey = $('#searchProduct').val();
@@ -49,7 +43,7 @@ $('#searchBar').click(function productSearchBarcode(doc) {
     console.log(err);
   })
 });
-
+// show items with quantity less than threshold quantity
 $('#showDocs').click(function showDocs() {
   return db.allDocs({include_docs: true}).then(function (result) {
     for (var i = 0; i < result.total_rows; i++) {
@@ -71,12 +65,9 @@ $('#showDocs').click(function showDocs() {
 //   });
 // });
 var invoice_total = [];
-var invoice_number = 0;
+//var invoice_number = 0;
 var items_array = [];
-// function calculate_total(total) {
-//   invoice_total.push(total);
-//   return invoice_total.reduce( (acc, cur) => acc + cur, 0);
-// }
+//to enter invoive products through barcode
 $('#enter').click(function () {
   var barcode = $('#invoiceProduct').val();
   var quantity = $('#quantity').val();
@@ -105,6 +96,7 @@ $('#enter').click(function () {
   });
 });
 
+//to checkout and generate a new invoice doc file
 $('#checkout').click(function () {
   var cash_paid = parseInt($('#cashPaid').val());
   var total = invoice_total.reduce( (acc, cur) => acc + cur, 0);
@@ -114,16 +106,48 @@ $('#checkout').click(function () {
   var balance = cash_paid - total
   console.log('customer balance ' + balance);
 
-  invoice_number++;
+  //invoice_number++;
 
-  return invoiceDoc("2", total, cash_paid, balance, items_array).then(function (result) {
+  invoiceDoc("4", total, cash_paid, balance, items_array)
+  //items_array.splice(0);
+});
+
+$('#returnSail').click(function () {
+  var invoice_no = $('#returnInvoice').val();
+
+  return db.find({
+    selector: {invoice_number: invoice_no},
+    fields: ['invoice_number', 'date', 'invoice_total', 'items'],
+  }).then(function (result) {
+    // var output = document.getElementById('holder');
+    for (var i = 0; i < result.docs[0].items.length; i++) {
+      var items = JSON.stringify(result.docs[0].items[i].name +' '+ result.docs[0].items[i].qty +' '+ result.docs[0].items[i].price);
+      var $ctrl = $('<input/>').attr({ type: 'checkbox', name:'chk', onchange: 'checkReturn('+items+')'}).addClass("chk");
+
+      $("#holder").append($ctrl);
+      $("#holder").append(items);
+      console.log(result.docs[0].items[i].name +' '+ result.docs[0].items[i].qty +' '+ result.docs[0].items[i].price);
+    }
     console.log(result);
   }).catch(function (err) {
     console.log(err);
   });
-  items_array.splice(0);
 });
+// $('.chk').change(function () {
+//   var c = this.checked ? '#0ff' : '#09f';
+//   $("#holder").css('color', c);
+// });
 
+function checkReturn(i){
+  console.log(i);
+}
+// $('input[type = checkbox]').click(function () {
+//   // alert('checked');
+//   console.log('checked');
+//   // var c = this.prop('checked') ? 'true' : 'false';
+//   // alert(c);
+// });
+//invoice doc file
 function invoiceDoc(invoice_number, invoice_total, cash_paid, customer_balance, items_array) {
 
   return db.putIfNotExists({
@@ -136,31 +160,15 @@ function invoiceDoc(invoice_number, invoice_total, cash_paid, customer_balance, 
     items: items_array
   }).then(function (result) {
     console.log(result);
-    return result;
+  }).then(function () {
+    db.createIndex({
+      index: {
+        fields: ['invoice_number']
+      }
+    });
+  }).catch(function (err) {
+    console.log(err);
   })
-  // if(db.search({query: inv_number, fields: ['invoice_number']})){
-  //   parseInt(inv_number);
-  //   inv_number++;
-  //   return db.put({
-  //     _id: toString(inv_number),
-  //     invoice_number: inv_number,
-  //     date: new Date(),
-  //     invoice_total: invoice_total,
-  //     cash_paid: cash_paid,
-  //     customer_balance : customer_balance,
-  //     items: items_array
-  //   });
-  // } else {
-  //   return db.put({
-  //     _id: inv_number,
-  //     invoice_number: inv_number,
-  //     date: new Date(),
-  //     invoice_total: invoice_total,
-  //     cash_paid: cash_paid,
-  //     customer_balance : customer_balance,
-  //     items: items_array
-  //   });
-  // }
 };
 
 
