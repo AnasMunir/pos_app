@@ -71,6 +71,8 @@ $('#showDocs').click(function showDocs() {
 //   });
 // });
 var invoice_total = [];
+var invoice_number = 0;
+var items_array = [];
 // function calculate_total(total) {
 //   invoice_total.push(total);
 //   return invoice_total.reduce( (acc, cur) => acc + cur, 0);
@@ -84,10 +86,20 @@ $('#enter').click(function () {
     fields: ['bar_code'],
     include_docs: true
   }).then(function (result) {
+
+    var item_for_array = {
+      barcode: barcode,
+      name: result.rows[0].doc.product_name,
+      price: result.rows[0].doc.pricing.retail,
+      qty: quantity
+    };
+
     console.log('item: ' + result.rows[0].doc.product_name + ' price: ' + result.rows[0].doc.pricing.retail + ' qty: ' + quantity);
     total = result.rows[0].doc.pricing.retail * quantity
     console.log(total);
+
     invoice_total.push(total);
+    items_array.push(item_for_array);
   }).catch(function (err) {
     console.log(err);
   });
@@ -96,11 +108,61 @@ $('#enter').click(function () {
 $('#checkout').click(function () {
   var cash_paid = parseInt($('#cashPaid').val());
   var total = invoice_total.reduce( (acc, cur) => acc + cur, 0);
+
   console.log('Invoice Total: ' + total);
   console.log('Cash paid: ' + cash_paid);
   var balance = cash_paid - total
   console.log('customer balance ' + balance);
-})
+
+  invoice_number++;
+
+  return invoiceDoc("2", total, cash_paid, balance, items_array).then(function (result) {
+    console.log(result);
+  }).catch(function (err) {
+    console.log(err);
+  });
+  items_array.splice(0);
+});
+
+function invoiceDoc(invoice_number, invoice_total, cash_paid, customer_balance, items_array) {
+
+  return db.putIfNotExists({
+    _id: invoice_number,
+    invoice_number: invoice_number,
+    date: new Date(),
+    invoice_total: invoice_total,
+    cash_paid: cash_paid,
+    customer_balance : customer_balance,
+    items: items_array
+  }).then(function (result) {
+    console.log(result);
+    return result;
+  })
+  // if(db.search({query: inv_number, fields: ['invoice_number']})){
+  //   parseInt(inv_number);
+  //   inv_number++;
+  //   return db.put({
+  //     _id: toString(inv_number),
+  //     invoice_number: inv_number,
+  //     date: new Date(),
+  //     invoice_total: invoice_total,
+  //     cash_paid: cash_paid,
+  //     customer_balance : customer_balance,
+  //     items: items_array
+  //   });
+  // } else {
+  //   return db.put({
+  //     _id: inv_number,
+  //     invoice_number: inv_number,
+  //     date: new Date(),
+  //     invoice_total: invoice_total,
+  //     cash_paid: cash_paid,
+  //     customer_balance : customer_balance,
+  //     items: items_array
+  //   });
+  // }
+};
+
 
 function productInsertion(name, barcode) {
 
