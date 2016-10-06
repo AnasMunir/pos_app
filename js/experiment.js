@@ -67,7 +67,7 @@ $('#showDocs').click(function showDocs() {
 var invoice_total = [];
 //var invoice_number = 0;
 var items_array = [];
-var checked_items = [];
+var checked_items = []; var checked_invoice_no;
 //to enter invoive products through barcode
 $('#enter').click(function () {
   var barcode = $('#invoiceProduct').val();
@@ -109,7 +109,7 @@ $('#checkout').click(function () {
 
   //invoice_number++;
 
-  invoiceDoc("4", total, cash_paid, balance, items_array)
+  invoiceDoc("5", total, cash_paid, balance, items_array)
   //items_array.splice(0);
 });
 
@@ -120,10 +120,10 @@ $('#returnSail').click(function () {
     selector: {invoice_number: invoice_no},
     fields: ['invoice_number', 'date', 'invoice_total', 'items'],
   }).then(function (result) {
-    // var output = document.getElementById('holder');
     for (var i = 0; i < result.docs[0].items.length; i++) {
+      invoice_no = JSON.stringify(result.docs[0].invoice_number)
       var items = JSON.stringify(result.docs[0].items[i].name +' '+ result.docs[0].items[i].qty +' '+ result.docs[0].items[i].price);
-      var $ctrl = $('<input/>').attr({ type: 'checkbox', name:'chk', onchange: 'checkReturn('+items+', '+i+')', id: 'chk_' + i, value: items}).addClass("chk");
+      var $ctrl = $('<input/>').attr({ type: 'checkbox', name:'chk', onchange: 'checkReturn('+items+', '+i+', '+invoice_no+')', id: 'chk_' + i, value: items}).addClass("chk");
 
       $("#holder").append($ctrl);
       $("#holder").append(items);
@@ -136,16 +136,25 @@ $('#returnSail').click(function () {
 });
 
 
-function checkReturn(item, i){
+function checkReturn(item, i, invoice_no){
   if ($('#chk_'+i).prop('checked')) {
     // console.log(item)
     checked_items.push(item);
     console.log(checked_items);
+    checked_invoice_no = invoice_no;
+    console.log(checked_invoice_no);
   } else {
     checked_items.pop(item);
+    checked_invoice_no = '';
     console.log(checked_items);
+    console.log(checked_invoice_no);
   }
 }
+$('#returnItems').click(function () {
+
+  returnDoc(checked_invoice_no, checked_items);
+})
+
 
 function invoiceDoc(invoice_number, invoice_total, cash_paid, customer_balance, items_array) {
 
@@ -170,6 +179,15 @@ function invoiceDoc(invoice_number, invoice_total, cash_paid, customer_balance, 
   })
 };
 
+function returnDoc(checked_invoice_no, items) {
+  return db.put({
+    _id: 'return' +'_'+ checked_invoice_no,
+    date: new Date(),
+    item: items
+  }).then(function (result) {
+    console.log(result);
+  });
+}
 
 function productInsertion(name, barcode) {
 
