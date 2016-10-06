@@ -67,6 +67,7 @@ $('#showDocs').click(function showDocs() {
 var invoice_total = [];
 //var invoice_number = 0;
 var items_array = [];
+var checked_items = [];
 //to enter invoive products through barcode
 $('#enter').click(function () {
   var barcode = $('#invoiceProduct').val();
@@ -122,7 +123,7 @@ $('#returnSail').click(function () {
     // var output = document.getElementById('holder');
     for (var i = 0; i < result.docs[0].items.length; i++) {
       var items = JSON.stringify(result.docs[0].items[i].name +' '+ result.docs[0].items[i].qty +' '+ result.docs[0].items[i].price);
-      var $ctrl = $('<input/>').attr({ type: 'checkbox', name:'chk', onchange: 'checkReturn('+items+')'}).addClass("chk");
+      var $ctrl = $('<input/>').attr({ type: 'checkbox', name:'chk', onchange: 'checkReturn('+items+', '+i+')', id: 'chk_' + i, value: items}).addClass("chk");
 
       $("#holder").append($ctrl);
       $("#holder").append(items);
@@ -133,21 +134,19 @@ $('#returnSail').click(function () {
     console.log(err);
   });
 });
-// $('.chk').change(function () {
-//   var c = this.checked ? '#0ff' : '#09f';
-//   $("#holder").css('color', c);
-// });
 
-function checkReturn(i){
-  console.log(i);
+
+function checkReturn(item, i){
+  if ($('#chk_'+i).prop('checked')) {
+    // console.log(item)
+    checked_items.push(item);
+    console.log(checked_items);
+  } else {
+    checked_items.pop(item);
+    console.log(checked_items);
+  }
 }
-// $('input[type = checkbox]').click(function () {
-//   // alert('checked');
-//   console.log('checked');
-//   // var c = this.prop('checked') ? 'true' : 'false';
-//   // alert(c);
-// });
-//invoice doc file
+
 function invoiceDoc(invoice_number, invoice_total, cash_paid, customer_balance, items_array) {
 
   return db.putIfNotExists({
