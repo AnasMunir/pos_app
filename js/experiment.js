@@ -1,7 +1,7 @@
 const remote = require('electron').remote
 const main = remote.require('./main.js')
 
-var db = new PouchDB('experiment7-db');
+var db = new PouchDB('experiment8-db');
 PouchDB.plugin(require('pouchdb-upsert'));
 
 $('#getval').click(function () {
@@ -30,14 +30,17 @@ $('#searchBar').click(function productSearchBarcode(doc) {
 
   var searchkey = $('#searchProduct').val();
 
-  return db.search({
-    query: searchkey,
-    fields: ['bar_code'],
-    highlighting: true,
-    include_docs: true
+  // return db.search({
+  //   query: searchkey,
+  //   fields: ['bar_code'],
+  //   highlighting: true,
+  //   include_docs: true
+  return db.find({
+    selector: {bar_code: searchkey},
+    fields: ['_id','product_name', 'bar_code', 'quantity', 'threshold_qty', 'pricing']
   }).then(function (result) {
     var output = document.getElementById('search_resutls')
-    output.innerHTML = JSON.stringify(result.rows[0].doc.product_name)
+    output.innerHTML = JSON.stringify(result.docs[0].product_name)
     console.log(result);
   }).catch(function (err) {
     console.log(err);
@@ -56,18 +59,13 @@ $('#showDocs').click(function showDocs() {
     console.log(err);
   })
 })
-//   return db.find({
-//     selector: {barcode: searchkey}
-//   }).then(function (result) {
-//     console.log(result);
-//   }).catch(function (err) {
-//     console.log(err);
-//   });
-// });
-var invoice_total = [];
-//var invoice_number = 0;
-var items_array = [];
-var checked_items = []; var checked_invoice_no;
+
+var invoice_total = [];  // to store the total of each item
+localStorage.invoice_number = 1;  // autoincremented invoice_number
+var items_array = [];  // to store the items before passing to invoiceDoc
+var checked_items = [];  // to store checked items during returning phase
+var checked_invoice_no;  //
+
 //to enter invoive products through barcode
 $('#enter').click(function () {
   var barcode = $('#invoiceProduct').val();
@@ -107,10 +105,9 @@ $('#checkout').click(function () {
   var balance = cash_paid - total
   console.log('customer balance ' + balance);
 
-  //invoice_number++;
+  invoiceDoc(localStorage.invoice_number, total, cash_paid, balance, items_array)
 
-  invoiceDoc("5", total, cash_paid, balance, items_array)
-  //items_array.splice(0);
+  // localStorage.invoice_number = Number(localStorage.invoice_number) + 1;
 });
 
 $('#returnSail').click(function () {
@@ -118,7 +115,7 @@ $('#returnSail').click(function () {
 
   return db.find({
     selector: {invoice_number: invoice_no},
-    fields: ['invoice_number', 'date', 'invoice_total', 'items'],
+    fields: ['_id','invoice_number', 'date', 'invoice_total', 'items']
   }).then(function (result) {
     for (var i = 0; i < result.docs[0].items.length; i++) {
       invoice_no = JSON.stringify(result.docs[0].invoice_number)
@@ -158,8 +155,8 @@ $('#returnItems').click(function () {
 
 function invoiceDoc(invoice_number, invoice_total, cash_paid, customer_balance, items_array) {
 
-  return db.putIfNotExists({
-    _id: invoice_number,
+  return db.put({
+    _id: 'invoice' +'_'+ invoice_number,
     invoice_number: invoice_number,
     date: new Date(),
     invoice_total: invoice_total,
@@ -174,6 +171,15 @@ function invoiceDoc(invoice_number, invoice_total, cash_paid, customer_balance, 
         fields: ['invoice_number']
       }
     });
+  }).then(function () {
+    console.log(items_array);
+    console.log(localStorage.invoice_number);
+
+    items_array.splice(0);
+    localStorage.invoice_number = Number(localStorage.invoice_number) + 1;
+
+    console.log(items_array);
+    console.log(localStorage.invoice_number);
   }).catch(function (err) {
     console.log(err);
   })
@@ -207,26 +213,19 @@ function productInsertion(name, barcode) {
     console.log(result);
   }).catch(function (err) {
     console.log(err);
-  });
-
-  var name = name +'_'+ barcode;
-  // // making design doc for above doc
-  return db.createIndex({
-    index: {
-      fields: ['bar_code'],
-      ddoc: name
-    }
-  }).then(function (result) {
-    console.log(result);
+  }).then(function () {
+    db.createIndex({
+      index: {
+        fields: ['bar_code']
+      }
+    });
   }).catch(function (err) {
     console.log(err);
   });
 
-  db.viewCleanup();
-
 }
 
-PouchDB.replicate('experiment7-db', 'http://localhost:5984/experiment7-db', {live: true});
+PouchDB.replicate('experiment8-db', 'http://localhost:5984/experiment8-db', {live: true});
 
 var button = document.createElement('button')
 button.textContent = 'Open window'
