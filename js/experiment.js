@@ -1,7 +1,7 @@
 const remote = require('electron').remote
 const main = remote.require('./main.js')
 
-var db = new PouchDB('experiment8-db');
+var db = new PouchDB('experiment9-db');
 PouchDB.plugin(require('pouchdb-upsert'));
 
 $('#getval').click(function () {
@@ -12,11 +12,10 @@ $('#getval').click(function () {
 });
 // live search
 $('#searchProduct').keyup(function () {
-  // alert("JZ is a foo!");
+
   var searchkey = $('#searchProduct').val();
   return db.allDocs({startkey: searchkey, endkey: searchkey+'\uffff', include_docs: true}).then(function (result) {
-    // var obj = jQuery.parseJSON(result);
-    // alert(obj.bar_code);
+
     var output = document.getElementById('search_resutls')
     output.innerHTML = result;
 
@@ -30,11 +29,6 @@ $('#searchBar').click(function productSearchBarcode(doc) {
 
   var searchkey = $('#searchProduct').val();
 
-  // return db.search({
-  //   query: searchkey,
-  //   fields: ['bar_code'],
-  //   highlighting: true,
-  //   include_docs: true
   return db.find({
     selector: {bar_code: searchkey},
     fields: ['_id','product_name', 'bar_code', 'quantity', 'threshold_qty', 'pricing']
@@ -61,10 +55,18 @@ $('#showDocs').click(function showDocs() {
 })
 
 var invoice_total = [];  // to store the total of each item
-localStorage.invoice_number = 1;  // autoincremented invoice_number
+// localStorage.invoice_number = 1;  // autoincremented invoice_number
 var items_array = [];  // to store the items before passing to invoiceDoc
 var checked_items = [];  // to store checked items during returning phase
 var checked_invoice_no;  //
+
+function invoiceCounter() {
+  if(localStorage.invoice_number) {
+    return localStorage.invoice_number = Number(localStorage.invoice_number) + 1;
+  } else {
+    return localStorage.invoice_number = 1;
+  }
+}
 
 //to enter invoive products through barcode
 $('#enter').click(function () {
@@ -81,7 +83,8 @@ $('#enter').click(function () {
       barcode: barcode,
       name: result.rows[0].doc.product_name,
       price: result.rows[0].doc.pricing.retail,
-      qty: quantity
+      qty: quantity,
+      product_qty: result.rows[0].doc.quantity
     };
 
     console.log('item: ' + result.rows[0].doc.product_name + ' price: ' + result.rows[0].doc.pricing.retail + ' qty: ' + quantity);
@@ -105,9 +108,50 @@ $('#checkout').click(function () {
   var balance = cash_paid - total
   console.log('customer balance ' + balance);
 
-  invoiceDoc(localStorage.invoice_number, total, cash_paid, balance, items_array)
+  // invoiceCounter().then(function (result) {
+  // })
+  invoiceDoc(invoiceCounter() + "", total, cash_paid, balance, items_array);
+  for (var i = 0; i < items_array.length; i++) {
+    // updateDoc(items_array[i].name +'_'+ items_array[i].barcode);
+    return db.upsert(items_array[i].name + '_' + items_array[i].barcode, function(doc){
+      doc.quantity = doc.quantity - Number(items_array[i].qty);
+      return doc;
+    }).then(function (result) {
+      console.log(result);
+    }).then(function () {
+      return db.allDocs({startkey: items_array[i].name + '_' + items_array[i].barcode, endkey: items_array[i].name + '_' + items_array[i].barcode +'_\uffff', include_docs: true}).then(function (result) {
+        console.log(result);
+      }).catch(function (err) {
+        console.log(err);
+      });
+    }).catch(function (err) {
+      console.log(err);
+    });
+}
 
-  // localStorage.invoice_number = Number(localStorage.invoice_number) + 1;
+  // for (var i = 0; i < items_array.length; i++) {
+  //     db.upsert(items_array[i].name +'_'+ items_array[i].barcode, function (doc) {
+  //       if (doc.quantity) {
+  //         doc.quantity - 5;
+  //       }
+  //       // doc.quantity - 5; //Number(items_array[i].qty);
+  //       console.log(doc.quantity);
+  //       // return doc.quantity;
+  //     });
+  // }
+
+  items_array.splice(0);
+  // db.putIfNotExists({
+  //   _id: name +'_'+ barcode,
+  //   product_name: name,
+  //   bar_code: barcode,
+  //   quantity: 15,
+  //   threshold_qty: 10,
+  //   pricing: {
+  //     list: 130,
+  //     retail: 180
+  //   }
+
 });
 
 $('#returnSail').click(function () {
@@ -118,13 +162,19 @@ $('#returnSail').click(function () {
     fields: ['_id','invoice_number', 'date', 'invoice_total', 'items']
   }).then(function (result) {
     for (var i = 0; i < result.docs[0].items.length; i++) {
-      invoice_no = JSON.stringify(result.docs[0].invoice_number)
+      invoice_no = JSON.stringify(result.docs[0].invoice_number);
       var items = JSON.stringify(result.docs[0].items[i].name +' '+ result.docs[0].items[i].qty +' '+ result.docs[0].items[i].price);
-      var $ctrl = $('<input/>').attr({ type: 'checkbox', name:'chk', onchange: 'checkReturn('+items+', '+i+', '+invoice_no+')', id: 'chk_' + i, value: items}).addClass("chk");
 
-      $("#holder").append($ctrl);
-      $("#holder").append(items);
       console.log(result.docs[0].items[i].name +' '+ result.docs[0].items[i].qty +' '+ result.docs[0].items[i].price);
+      // console.log(parseInt(result.docs[0].items[i].qty));
+      // if (parseInt(result.docs[0].items[i].qty > 1)) {
+        for (var j = 0; j < parseInt(result.docs[0].items[i].qty); j++) {
+          console.log(items);
+          var $ctrl = $('<input/>').attr({ type: 'checkbox', name:'chk', onchange: 'checkReturn('+items+', '+j+', '+invoice_no+')', id: 'chk_' + j, value: items}).addClass("chk");
+          $("#holder").append($ctrl);
+          $("#holder").append(items);
+        }
+      // }
     }
     console.log(result);
   }).catch(function (err) {
@@ -152,10 +202,37 @@ $('#returnItems').click(function () {
   returnDoc(checked_invoice_no, checked_items);
 })
 
+$('#showReturns').click(function () {
+  return db.allDocs({startkey: 'return_', endkey: 'return_\uffff', include_docs: true}).then(function (result) {
+    console.log(result);
+  }).then(function () {
+    return db.allDocs({startkey: 'invoice_', endkey: 'invoice_\uffff', include_docs: true}).then(function (result) {
+      console.log(result);
+    })
+  }).catch(function (err) {
+    console.log(err);
+  })
+
+  // return db.find({
+  //   selector: {invoice_number: '15'},
+  //   fields: ['_id','invoice_number', 'date', 'invoice_total', 'items']
+  // }).then(function (result) {
+  //   console.log(result);
+  // })
+});
+
+function updateDoc(id) {
+  db.upsert(id, function (doc) {
+    doc.quantity - 5;
+    // doc.quantity - 5; //Number(items_array[i].qty);
+    // console.log(doc.quantity);
+    return doc;
+  });
+}
 
 function invoiceDoc(invoice_number, invoice_total, cash_paid, customer_balance, items_array) {
 
-  return db.put({
+  return db.putIfNotExists({
     _id: 'invoice' +'_'+ invoice_number,
     invoice_number: invoice_number,
     date: new Date(),
@@ -171,22 +248,13 @@ function invoiceDoc(invoice_number, invoice_total, cash_paid, customer_balance, 
         fields: ['invoice_number']
       }
     });
-  }).then(function () {
-    console.log(items_array);
-    console.log(localStorage.invoice_number);
-
-    items_array.splice(0);
-    localStorage.invoice_number = Number(localStorage.invoice_number) + 1;
-
-    console.log(items_array);
-    console.log(localStorage.invoice_number);
   }).catch(function (err) {
     console.log(err);
   })
 };
 
 function returnDoc(checked_invoice_no, items) {
-  return db.put({
+  return db.putIfNotExists({
     _id: 'return' +'_'+ checked_invoice_no,
     date: new Date(),
     item: items
@@ -225,7 +293,7 @@ function productInsertion(name, barcode) {
 
 }
 
-PouchDB.replicate('experiment8-db', 'http://localhost:5984/experiment8-db', {live: true});
+PouchDB.replicate('experiment9-db', 'http://localhost:5984/experiment9-db', {live: true});
 
 var button = document.createElement('button')
 button.textContent = 'Open window'
