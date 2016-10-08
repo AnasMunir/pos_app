@@ -8,13 +8,21 @@ $('#getval').click(function () {
   var barcode = $('#barcode').val();
   var name = $('#name').val();
 
-  productInsertion(name, barcode);
+  return db.find({selector: {bar_code: barcode}}).then(function (result) {
+    console.log(result);
+    if(result.docs.length == 0) {
+      console.log('barcode ' + barcode + ' is available');
+      productInsertion(name, barcode);
+    } else {
+      console.log('barcode' + barcode + ' is already taken');
+    }
+  });
 });
 // live search
 $('#searchProduct').keyup(function () {
 
   var searchkey = $('#searchProduct').val();
-  return db.allDocs({startkey: searchkey, endkey: searchkey+'\uffff', include_docs: true}).then(function (result) {
+  return db.allDocs({startkey: 'product_' + searchkey, endkey: 'product_' + searchkey+'\uffff', include_docs: true}).then(function (result) {
 
     var output = document.getElementById('search_resutls')
     output.innerHTML = result;
@@ -34,8 +42,9 @@ $('#searchBar').click(function productSearchBarcode(doc) {
     fields: ['_id','product_name', 'bar_code', 'quantity', 'threshold_qty', 'pricing']
   }).then(function (result) {
     var output = document.getElementById('search_resutls')
-    output.innerHTML = JSON.stringify(result.docs[0].product_name)
+    // output.innerHTML = JSON.stringify(result.docs[0].product_name)
     console.log(result);
+    alert(result);
   }).catch(function (err) {
     console.log(err);
   })
@@ -212,14 +221,13 @@ $('#showReturns').click(function () {
   }).catch(function (err) {
     console.log(err);
   })
-
-  // return db.find({
-  //   selector: {invoice_number: '15'},
-  //   fields: ['_id','invoice_number', 'date', 'invoice_total', 'items']
-  // }).then(function (result) {
-  //   console.log(result);
-  // })
 });
+
+$('#showAllDocs').click(function () {
+  return db.allDocs({startkey: 'product_', endkey: 'product_\uffff', include_docs: true}).then(function (result) {
+    console.log(result);
+  })
+})
 
 function updateDoc(id) {
   db.upsert(id, function (doc) {
@@ -266,7 +274,7 @@ function returnDoc(checked_invoice_no, items) {
 function productInsertion(name, barcode) {
 
   db.putIfNotExists({
-    _id: name +'_'+ barcode,
+    _id: 'product' +'_'+ name +'_'+ barcode,
     product_name: name,
     bar_code: barcode,
     quantity: 15,
