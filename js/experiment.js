@@ -2,6 +2,7 @@ const remote = require('electron').remote
 const main = remote.require('./main.js')
 
 var db = new PouchDB('experiment9-db');
+var remmote_db = new PouchDB('http://localhost:5984/live_replicate');
 PouchDB.plugin(require('pouchdb-upsert'));
 
 $('#getval').click(function () {
@@ -22,11 +23,24 @@ $('#getval').click(function () {
 $('#searchProduct').keyup(function () {
 
   var searchkey = $('#searchProduct').val();
-  return db.allDocs({startkey: 'product_' + searchkey, endkey: 'product_' + searchkey+'\uffff', include_docs: true}).then(function (result) {
+  // return db.allDocs({startkey: 'product_' + searchkey, endkey: 'product_' + searchkey+'\uffff', include_docs: true}).then(function (result) {
 
-    var output = document.getElementById('search_resutls')
+  //   var output = document.getElementById('search_resutls')
+  //   output.innerHTML = result;
+
+  //   console.log(result);
+  // }).catch(function (err) {
+  //   console.log(err);
+  // })
+  return db.find({
+    selector: {
+      _id: {$gte: null},
+      product_name: {$regex: ".*" + searchkey + "."}
+    },
+    fields: ['product_name']
+  }).then(function (result) {
+    var output = document.getElementById('search_resutls');
     output.innerHTML = result;
-
     console.log(result);
   }).catch(function (err) {
     console.log(err);
@@ -292,7 +306,7 @@ function productInsertion(name, barcode) {
   }).then(function () {
     db.createIndex({
       index: {
-        fields: ['bar_code']
+        fields: ['bar_code', 'product_name']
       }
     });
   }).catch(function (err) {
@@ -301,8 +315,28 @@ function productInsertion(name, barcode) {
 
 }
 
-PouchDB.replicate('experiment9-db', 'http://localhost:5984/experiment9-db', {live: true});
+// PouchDB.replicate('experiment9-db', 'http://localhost:5984/experiment9-db', {live: true});
+// db.replicate.to(remmote_db).on('complete', function () {
+//   console.log('relication complete');
+// }).on('error', function (err) {
+//   console.log('hmm, replication failed');
+// });
+// db.sync(remmote_db, {
+//   live: true,
+//   retry: true
+// }).on('change', function (change) {
+//   console.log('something changed');
+// }).on('paused', function (info) {
+//   console.log('replication paused');
+// }).on('active', function (info) {
+//   console.log('replication resumed');
+// }).on('error', function (err) {
+//   console.log(err);
+// })
 
+// remmote_db.info().then(function (info) {
+//   console.log(info);
+// })
 var button = document.createElement('button')
 button.textContent = 'Open window'
 button.addEventListener('click', () => {
