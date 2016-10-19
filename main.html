@@ -15,6 +15,9 @@
 		<script src="./js/pouchdb.upsert.min.js"></script>
 		<script src="./js/pouchdb.quick-search.min.js"></script>
 		<script src="./js/pouchdb.find.min.js"></script>
+		<script src="./amcharts/amcharts.js"></script>
+		<script src="./amcharts/serial.js"></script>
+		<script src="./highcharts/js/highcharts.js"></script>
 	<h1>Anas</h1>
 	<p>I'm going to try to use leveldb with electron</p>
   <div id="search_resutls"></div>
@@ -129,6 +132,9 @@
     <button id="showAllDocs" type="submit" name="showAllDocs" class="btn btn-inverse">show all docs</button>
   </div>
 </div>
+
+<div id="chartdiv" style="width: 640px; height: 400px;"></div>
+<div id="container" style="width:100%; height:400px;"></div>
 	<!-- <script type="text/javascript">
 		var db = new PouchDB('experiment4-db');
 	</script> -->

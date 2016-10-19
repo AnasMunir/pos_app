@@ -82,6 +82,7 @@ var invoice_total = [];  // to store the total of each item
 var items_array = [];  // to store the items before passing to invoiceDoc
 var checked_items = [];  // to store checked items during returning phase
 var checked_invoice_no;  //
+var graphData = []; // data for graph
 
 function invoiceCounter() {
   if(localStorage.invoice_number) {
@@ -207,19 +208,42 @@ $('#showReturns').click(function () {
 });
 
 $('#showAllDocs').click(function () {
-  return db.allDocs({startkey: 'product_', endkey: 'product_\uffff', include_docs: true}).then(function (result) {
+  return db.allDocs({startkey: 'product_', endkey: 'product_\uffff', include_docs: true})
+  .then(result => {
     console.log(result);
-  })
-})
-
-function updateDoc(id) {
-  db.upsert(id, function (doc) {
-    doc.quantity - 5;
-    // doc.quantity - 5; //Number(items_array[i].qty);
-    // console.log(doc.quantity);
-    return doc;
+    for (var i = 0; i < result.rows.length; i++) {
+      var graph_items = {
+        product: result.rows[i].doc.product_name,
+        quantity: result.rows[i].doc.quantity
+      }
+      graphData.push(graph_items);
+    }
+    AmCharts.makeChart( "container", {
+      "type": "serial",
+      "dataProvider": graphData,
+      "categoryField": "product",
+      "categoryAxis": {
+        "autoGridCount": false,
+        "gridCount": graphData.length,
+        "gridPosition": "start",
+        "labelRotation": 90
+      },
+      "graphs": [ {
+        "valueField": "quantity",
+        "type": "column",
+        "fillAlphas": 0.8,
+        "angle": 30
+      } ]
+    } );
+    return graphData;
+  }).then(result => {
+    console.log(result);
+    // amCharts(result, result.product, result.quantity);
+  }).catch( err => {
+    console.log(err);
   });
-}
+});
+
 
 function invoiceDoc(invoice_number, invoice_total, cash_paid, customer_balance, items_array) {
 
@@ -260,7 +284,7 @@ function productInsertion(name, barcode) {
     _id: 'product' +'_'+ name +'_'+ barcode,
     product_name: name,
     bar_code: barcode,
-    quantity: 15,
+    quantity: 150,
     threshold_qty: 10,
     pricing: {
       list: 130,
@@ -283,7 +307,109 @@ function productInsertion(name, barcode) {
   });
 
 }
+var chartData = [ {
+    "country": "USA",
+    "visits": 4252
+  }, {
+    "country": "China",
+    "visits": 1882
+  }, {
+    "country": "Japan",
+    "visits": 1809
+  }, {
+    "country": "Germany",
+    "visits": 1322
+  }, {
+    "country": "UK",
+    "visits": 1122
+  }, {
+    "country": "France",
+    "visits": 1114
+  }, {
+    "country": "India",
+    "visits": 984
+  }, {
+    "country": "Spain",
+    "visits": 711
+  }, {
+    "country": "Netherlands",
+    "visits": 665
+  }, {
+    "country": "Russia",
+    "visits": 580
+  }, {
+    "country": "South Korea",
+    "visits": 443
+  }, {
+    "country": "Canada",
+    "visits": 441
+  }, {
+    "country": "Brazil",
+    "visits": 395
+  }, {
+    "country": "Italy",
+    "visits": 386
+  }, {
+    "country": "Australia",
+    "visits": 384
+  }, {
+    "country": "Taiwan",
+    "visits": 338
+  }, {
+    "country": "Poland",
+    "visits": 328
+} ];
+console.log(chartData);
+// AmCharts.ready( function () {
+//   var chart = new AmCharts.AmSerialChart();
+//   chart.dataProvider = chartData;
+//   chart.categoryField = "country";
+//
+//   var graph = new AmCharts.AmGraph();
+//   graph.valueField = "visits";
+//   graph.type = "column";
+//   chart.addGraph(graph);
+//
+//   chart.write("chartdiv")
+// });
 
+function amCharts(result, provider, field) {
+  AmCharts.makeChart( "container", {
+    "type": "serial",
+    "dataProvider": result,
+    "categoryField": provider,
+    "categoryAxis": {
+      "autoGridCount": false,
+      "gridCount": result.length,
+      "gridPosition": "start",
+      "labelRotation": 90
+    },
+    "graphs": [ {
+      "valueField": Number(field),
+      "type": "column",
+      "fillAlphas": 0.8,
+      "angle": 30
+    } ]
+  } );
+}
+
+AmCharts.makeChart( "chartdiv", {
+  "type": "serial",
+  "dataProvider": chartData,
+  "categoryField": "country",
+  "categoryAxis": {
+    "autoGridCount": false,
+    "gridCount": chartData.length,
+    "gridPosition": "start",
+    "labelRotation": 90
+  },
+  "graphs": [ {
+    "valueField": "visits",
+    "type": "column",
+    "fillAlphas": 0.8,
+    "angle": 30
+  } ]
+} );
 // PouchDB.replicate('experiment9-db', 'http://localhost:5984/experiment9-db', {live: true});
 // db.replicate.to(remmote_db).on('complete', function () {
 //   console.log('relication complete');
